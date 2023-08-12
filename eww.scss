@@ -1,0 +1,65 @@
+* {
+  all: unset;
+  font-family: "JetBrains Mono Nerd Font";
+}
+
+.brightness-slider-popup,
+.volume-slider-popup {
+  font-weight: bold;
+  border: 2px solid #f38ba8;
+  border-radius: 12px;
+  color: #b0b4bc;
+  background-color: #1e1e2e;
+}
+
+.bar {
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  padding: 12px;
+}
+
+// Generics
+.metric scale trough highlight {
+  all: unset;
+  background-color: #1e1e2e;
+  color: #000000;
+  border-radius: 10px;
+}
+
+.metric scale trough {
+  all: unset;
+  background-color: #4e4e4e;
+  border-radius: 50px;
+  min-height: 3px;
+  min-width: 50px;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+
+.metric scale trough highlight {
+  all: unset;
+  background-color: #f38ba8;
+  color: #000000;
+  border-radius: 10px;
+}
+
+.metric scale trough {
+  all: unset;
+  background-color: #4e4e4e;
+  border-radius: 50px;
+  min-height: 3px;
+  min-width: 50px;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+
+.vol-circle {
+  color: #e0b089;
+  background-color: #38384d;
+  border-radius: 1px;
+}
+
+.icon-vol {
+  font-size: 11;
+  margin: 2px;
+}

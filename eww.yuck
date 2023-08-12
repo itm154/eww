@@ -1,0 +1,153 @@
+; Main widget
+(defwidget bar []
+           (box :orientation "h"
+                (time :var time-reveal
+                      :varname "time-reveal")
+                (label :text {volume})
+                (label :text {battery})
+                (volume-circle)
+                (music-player)))
+
+; Slider
+(defwidget metric [label value onchange]
+           (box :orientation "h"
+                :class "metric"
+                :space-evenly false
+                (box :class "label" label)
+                (scale :min 0
+                       :max 101
+                       :active {onchange != ""}
+                       :value value
+                       :onchange onchange)))
+
+; FIXME:Hyprland stuff
+;; (deflisten workspaces :initial "[]" "scripts/get-workspaces")
+
+;; (deflisten current_workspace :initial "1" "scripts/get-active-workspace")
+
+;; (defwidget workspaces []
+;;            (eventbox :onscroll "scripts/change-active-workspace {} ${current_workspace}"
+;;                      :class "workspace-widget"
+;;                 (box :space-evenly false
+;;                      :spacing 10
+;;                      (label :text "${workspaces}${current_workspace}"
+;;                             :visible false)
+;;                      (for workspace in workspaces
+;;                           (eventbox :onclick "hyprctl dispatch workspace ${workspace.id}"
+;;                                     (box :class "workspace-entry ${workspace.if == current_workspace ? "current" : "" } ${workspace.windows > 0 ? "occupied" : "empty" }"
+;;                                          (label :text "${workspace.id}")))))))
+
+; Timekeeping
+(defvar time-reveal false)
+
+(defpoll clock
+         :interval "1s"
+         'date +"%I:%M %p"')
+
+(defpoll date
+         :interval '10s'
+         'date +"%A - %d %b %Y "')
+
+(defwidget time [var varname]
+           (eventbox :onhover "eww update ${varname}=true"
+                     :onhoverlost "eww update ${varname}=false"
+                     (box :space-evenly false
+                      (revealer :reveal {!var}
+                                :duration "100ms"
+                                :transition "slideleft"
+                                (label :text {clock}))
+                      (revealer :reveal {var}
+                                :duration "100ms"
+                                :transition "slideleft"
+                                (label :text {date})))))
+
+; Audio stuff
+; FIXME: volume not returning the right type
+; https://github.com/Vagahbond/eww-dotfiles
+(defpoll volume
+         :interval "50ms"
+         "scripts/get-volume")
+
+(defwidget volume-slider []
+           (box :orientation "h"
+                :halign "center"
+                :space-evenly false
+                (metric :label {volume}
+                        :value volume
+                        :onchange "pamixer --set-volume {}")
+                (label :text "")))
+
+(defwidget volume-circle []
+           (box :class "vol-module"
+                :vexpand "false"
+                :hexpand "false"
+                (circular-progress :value volume
+                                   :class "vol-circle"
+                                   :thickness 4
+                                   (button :class "icon-vol"
+                                           :onmiddleclick "pamixer --toggle-mute"
+                                           ""))))
+
+(deflisten music
+           :inital ""
+           "playerctl --follow metadata --format '{{artist}} - {{title}}' || true")
+
+(defwidget music-player []
+           (eventbox
+            :onmiddleclick "playerctl play-pause"
+            :onrightclick "playerctl next"
+            :onclick "playerctl previous"
+            (box
+             :orientation "h"
+             (label :text {music}))))
+
+; Hardware stuff
+(defpoll brightness
+           :interval "50ms"
+           "brightnessctl -m -d intel_backlight | awk -F, '{print substr($4, 0, length($4)-1)}'")
+
+(defwidget brightness-slider []
+           (box :orientation "h"
+                :halign "center"
+                :space-evenly false
+                (metric :label {brightness}
+                        :value brightness
+                        :onchange "brightnessctl set {}%")
+                (label :text "")))
+
+(deflisten battery
+           :initial ""
+           "tail -F /sys/class/power_supply/BAT0/capacity")
+
+; Main bar window
+(defwindow bar
+           :monitor 0
+           :wm-ignore false
+           :stacking "fg"
+           :exclusive true
+           :geometry (geometry :x "0%"
+                               :y "0%"
+                               :width "100%"
+                               :height "5%"
+                               :anchor "top center")
+           (bar))
+
+(defwindow volume-slider-popup
+           :monitor 0
+           :exlusive true
+           :geometry (geometry :x "50%"
+                               :y "80%"
+                               :width "8%"
+                               :height "5%"
+                               :anchor "top center")
+           (volume-slider))
+
+(defwindow brightness-slider-popup
+           :monitor 0
+           :exlusive true
+           :geometry (geometry :x "50%"
+                               :y "80%"
+                               :width "8%"
+                               :height "5%"
+                               :anchor "top center")
+           (brightness-slider))
