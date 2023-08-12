@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if command -v pamixer &>/dev/null; then
+    pamixer --get-volume
+fi
